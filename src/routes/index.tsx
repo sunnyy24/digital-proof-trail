@@ -1,236 +1,231 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Toaster } from "@/components/ui/sonner";
-import { UploadPanel, type SelectedFile } from "@/components/aimd/UploadPanel";
-import { AnalysisSteps } from "@/components/aimd/AnalysisSteps";
-import { ReportDashboard } from "@/components/aimd/ReportDashboard";
-import { initialSteps, runForensicPipeline } from "@/lib/forensics/pipeline";
-import { kindOf, sha256 } from "@/lib/forensics/fileAnalyzer";
-import { DEMO_REPORT } from "@/lib/forensics/demo";
-import type { ForensicReport, StepState } from "@/lib/forensics/types";
+import { ConfidenceRing } from "@/components/aimd/ConfidenceRing";
 import {
+  ArrowRight,
+  Brain,
+  Cpu,
   Fingerprint,
-  Radar,
-  ScanEye,
-  ShieldCheck,
+  Gauge,
+  Layers,
   Lock,
-  FlaskConical,
-  AlertTriangle,
+  ScanEye,
+  Share2,
+  ShieldCheck,
+  Sparkles,
+  Zap,
+  FileCheck2,
+  CheckCircle2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AIMD — AI Media Forensics & Provenance Platform" },
+      { title: "AIMD — Know Where Your Media Came From" },
       {
         name: "description",
         content:
-          "AIMD analyzes images, video and audio using metadata, C2PA provenance, AI-generation signals and forensic indicators to reveal how digital media was created, modified and distributed.",
+          "AIMD is an AI media forensics and provenance platform: detect AI-generated content, uncover manipulation, identify device metadata and investigate digital media origin.",
       },
-      { property: "og:title", content: "AIMD — AI Media Forensics & Provenance Platform" },
+      { property: "og:title", content: "AIMD — Know Where Your Media Came From" },
       {
         property: "og:description",
         content:
-          "Detect AI-generated media. Analyze digital evidence. Discover media provenance — with clearly separated verified, inferred and unknown findings.",
+          "Detect AI-generated content, uncover manipulation, identify device metadata and investigate media provenance — in one forensic analysis platform.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Index,
+  component: Landing,
 });
 
-const CAPABILITIES = [
-  { icon: ScanEye, title: "Metadata & EXIF", text: "Device, lens, capture settings and GPS read straight from the file." },
-  { icon: Fingerprint, title: "Provenance & C2PA", text: "Content Credentials structures detected and reported honestly." },
-  { icon: Radar, title: "AI & manipulation signals", text: "Embedded generator markers, re-encode and tampering indicators." },
+const TRUST = ["Image Analysis", "Video Analysis", "Audio Analysis", "Provenance Analysis"];
+
+const FEATURES = [
+  { icon: Brain, title: "AI Detection", text: "Identify potential AI-generated media." },
+  { icon: Cpu, title: "Device Intelligence", text: "Extract available camera and device information." },
+  { icon: ScanEye, title: "Metadata Analysis", text: "Inspect technical file metadata." },
+  { icon: Fingerprint, title: "Provenance", text: "Check C2PA and Content Credentials." },
+  { icon: Layers, title: "Manipulation Detection", text: "Identify potential editing and tampering." },
+  { icon: Share2, title: "Social Signals", text: "Detect possible platform processing." },
 ];
 
-function Index() {
-  const [selected, setSelected] = useState<SelectedFile | null>(null);
-  const [hash, setHash] = useState<string | null>(null);
-  const [steps, setSteps] = useState<StepState[]>(initialSteps());
-  const [busy, setBusy] = useState(false);
-  const [report, setReport] = useState<ForensicReport | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const resultRef = useRef<HTMLDivElement>(null);
-  const urlRef = useRef<string | null>(null);
+const STEPS = [
+  { n: "01", title: "Upload", text: "Upload your image, video or audio." },
+  { n: "02", title: "Analyze", text: "AIMD examines multiple forensic signals." },
+  { n: "03", title: "Understand", text: "Receive a confidence-based forensic report." },
+];
 
-  useEffect(() => () => void (urlRef.current && URL.revokeObjectURL(urlRef.current)), []);
+const PRIVACY = [
+  { icon: Lock, title: "Secure Analysis", text: "Files are validated, analyzed in your browser and never executed." },
+  { icon: ShieldCheck, title: "Privacy First", text: "Nothing leaves your device unless you export a report." },
+  { icon: FileCheck2, title: "Transparent Evidence", text: "Every finding is labelled verified, inferred or unknown." },
+  { icon: Zap, title: "Fast Analysis", text: "A full multi-layer pass completes in seconds." },
+];
 
-  const reset = useCallback(() => {
-    if (urlRef.current) URL.revokeObjectURL(urlRef.current);
-    urlRef.current = null;
-    setSelected(null);
-    setReport(null);
-    setHash(null);
-    setError(null);
-    setSteps(initialSteps());
-  }, []);
-
-  const onSelect = useCallback((file: File) => {
-    if (urlRef.current) URL.revokeObjectURL(urlRef.current);
-    const url = URL.createObjectURL(file);
-    urlRef.current = url;
-    setReport(null);
-    setError(null);
-    setSteps(initialSteps());
-    setSelected({ file, previewUrl: url, kind: kindOf(file) });
-    setHash(null);
-    void file.arrayBuffer().then(sha256).then(setHash).catch(() => setHash("unavailable"));
-  }, []);
-
-  const analyze = useCallback(async () => {
-    if (!selected) return;
-    setBusy(true);
-    setError(null);
-    setReport(null);
-    setSteps(initialSteps());
-    try {
-      const result = await runForensicPipeline(selected.file, (stepId) => {
-        setSteps((prev) => {
-          const idx = prev.findIndex((s) => s.id === stepId);
-          return prev.map((s, i) => ({
-            ...s,
-            status: i < idx ? "done" : i === idx ? "running" : s.status,
-          }));
-        });
-      });
-      setSteps((prev) => prev.map((s) => ({ ...s, status: "done" })));
-      setReport(result);
-      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
-    } catch (e) {
-      setError(
-        e instanceof Error
-          ? `Analysis failed: ${e.message}`
-          : "Analysis failed for an unknown reason. Please try another file.",
-      );
-      setSteps(initialSteps());
-    } finally {
-      setBusy(false);
-    }
-  }, [selected]);
-
-  const loadDemo = useCallback(() => {
-    reset();
-    setReport({ ...DEMO_REPORT, analyzedAt: new Date().toISOString() });
-    setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
-  }, [reset]);
-
+function Landing() {
   return (
-    <div className="min-h-screen">
-      <Toaster />
+    <div>
+      {/* Hero */}
+      <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.05fr_0.95fr]">
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-mono text-[10px] tracking-[0.2em] text-primary uppercase">
+            <span className="size-1.5 rounded-full bg-primary" /> Digital Media Forensics
+          </span>
+          <h1 className="mt-6 font-display text-4xl leading-[1.05] font-bold sm:text-6xl">
+            Know Where Your Media Came From.
+          </h1>
+          <p className="mt-4 font-display text-xl text-primary sm:text-2xl">
+            Detect. Verify. Investigate.
+          </p>
+          <p className="mt-6 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+            AIMD analyzes digital media using metadata, AI detection, provenance signals and
+            forensic evidence to help determine how content was created, modified and distributed.
+          </p>
 
-      <header className="border-b border-border/70 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="grid size-9 place-items-center rounded-lg border border-primary/40 bg-primary/10">
-              <ShieldCheck className="size-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-display text-lg leading-none font-bold tracking-tight">AIMD</p>
-              <p className="text-[11px] tracking-wider text-muted-foreground uppercase">
-                AI Media Forensics &amp; Provenance
-              </p>
-            </div>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button asChild size="lg">
+              <Link to="/analyze">
+                Analyze Media <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/technology">Explore Technology</Link>
+            </Button>
           </div>
-          <Button variant="outline" size="sm" onClick={loadDemo}>
-            <FlaskConical className="size-4" /> Try demo report
+
+          <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
+            {TRUST.map((t) => (
+              <li key={t} className="flex items-center gap-2 text-xs text-muted-foreground">
+                <CheckCircle2 className="size-3.5 text-verdict-safe" /> {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <HeroVisual />
+      </section>
+
+      {/* Features */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+        <h2 className="max-w-2xl font-display text-3xl font-bold sm:text-4xl">
+          One File. Multiple Layers of Evidence.
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+          Each layer contributes independent signals. AIMD combines them into a single
+          confidence-based verdict without overstating what the evidence supports.
+        </p>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map((f) => (
+            <article
+              key={f.title}
+              className="panel group p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40"
+            >
+              <span className="grid size-10 place-items-center rounded-lg border border-primary/30 bg-primary/10 transition-colors group-hover:bg-primary/15">
+                <f.icon className="size-5 text-primary" />
+              </span>
+              <h3 className="mt-4 font-display text-lg font-semibold">{f.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{f.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+        <h2 className="font-display text-3xl font-bold sm:text-4xl">How it works</h2>
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {STEPS.map((s) => (
+            <article key={s.n} className="panel p-7 transition-colors hover:border-primary/40">
+              <p className="font-mono text-sm text-primary">{s.n}</p>
+              <h3 className="mt-3 font-display text-2xl font-bold">{s.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{s.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* Privacy */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+        <h2 className="font-display text-3xl font-bold sm:text-4xl">Your Media. Your Control.</h2>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {PRIVACY.map((p) => (
+            <article key={p.title} className="panel p-6">
+              <p.icon className="size-5 text-primary" />
+              <h3 className="mt-4 text-sm font-semibold">{p.title}</h3>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{p.text}</p>
+            </article>
+          ))}
+        </div>
+        <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
+          AIMD does not retain uploaded media longer than necessary unless you explicitly choose to
+          save the analysis.
+        </p>
+      </section>
+
+      {/* CTA */}
+      <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6">
+        <div className="panel flex flex-col items-center gap-5 p-10 text-center">
+          <Sparkles className="size-6 text-primary" />
+          <h2 className="font-display text-2xl font-bold sm:text-3xl">
+            Upload media. Discover the evidence. Understand its origin.
+          </h2>
+          <Button asChild size="lg">
+            <Link to="/analyze">
+              Analyze Media <ArrowRight className="size-4" />
+            </Link>
           </Button>
         </div>
-      </header>
+      </section>
+    </div>
+  );
+}
 
-      <main className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
-        <section className="mx-auto max-w-3xl text-center">
-          <Badge variant="outline" className="border-primary/40 text-primary">
-            Digital evidence analysis
-          </Badge>
-          <h1 className="mt-4 font-display text-3xl leading-tight font-bold sm:text-5xl">
-            Detect AI-generated media. Analyze digital evidence. Discover media provenance.
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-            AIMD analyzes images, videos and audio using metadata, provenance, AI detection and
-            forensic signals to help determine how digital media was created, modified and
-            distributed. Findings are always labelled as verified, inferred or unknown — AIMD does not
-            claim perfect detection accuracy.
+function HeroVisual() {
+  return (
+    <div className="relative">
+      <div
+        aria-hidden
+        className="absolute -inset-6 rounded-[2rem] bg-[radial-gradient(circle_at_60%_20%,var(--color-primary),transparent_65%)] opacity-15 blur-2xl"
+      />
+      <div className="panel relative p-6">
+        <div className="flex items-center justify-between">
+          <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+            Forensic analysis
           </p>
-        </section>
-
-        <section className="mt-8 grid gap-3 sm:grid-cols-3">
-          {CAPABILITIES.map((c) => (
-            <div key={c.title} className="panel p-4">
-              <c.icon className="mb-2 size-5 text-primary" />
-              <p className="text-sm font-semibold">{c.title}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{c.text}</p>
-            </div>
-          ))}
-        </section>
-
-        <section className="mt-8 space-y-5" id="upload">
-          <UploadPanel
-            selected={selected}
-            onSelect={onSelect}
-            onClear={reset}
-            onAnalyze={analyze}
-            busy={busy}
-            hashPreview={hash}
-          />
-
-          {busy || (steps.some((s) => s.status !== "pending") && !report) ? (
-            <AnalysisSteps steps={steps} />
-          ) : null}
-
-          {error ? (
-            <p className="panel flex items-start gap-2 border-destructive/40 p-4 text-sm text-destructive">
-              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-              {error}
-            </p>
-          ) : null}
-        </section>
-
-        <div ref={resultRef} className="scroll-mt-6">
-          {report ? (
-            <section className="mt-10">
-              {report.isDemo ? (
-                <p className="panel mb-5 flex items-start gap-2 border-verdict-warn/40 bg-verdict-warn/10 p-4 text-sm text-verdict-warn">
-                  <FlaskConical className="mt-0.5 size-4 shrink-0" />
-                  <span>
-                    <strong>DEMO DATA</strong> — this report is a sample and is not based on an
-                    uploaded file. Upload your own media above for a real analysis.
-                  </span>
-                </p>
-              ) : null}
-              <ReportDashboard report={report} previewUrl={selected?.previewUrl ?? null} />
-            </section>
-          ) : null}
+          <span className="flex items-center gap-2 font-mono text-[10px] tracking-wider text-verdict-safe uppercase">
+            <span className="size-1.5 animate-pulse rounded-full bg-verdict-safe" /> Live
+          </span>
         </div>
 
-        <section className="panel mt-10 p-5">
-          <h2 className="flex items-center gap-2 text-sm font-semibold tracking-wide uppercase">
-            <Lock className="size-4 text-primary" /> Privacy &amp; handling
-          </h2>
-          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-            Your uploaded media is analyzed securely. AIMD does not retain uploaded files longer than
-            necessary unless you explicitly choose to save the analysis. Analysis runs inside your
-            browser: files are validated by type and size (maximum 200 MB), are never executed, and
-            reports are only written to disk when you download them.
-          </p>
-          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-            AIMD reports evidence-based indications, not certainties. Unavailable capabilities are
-            labelled rather than guessed, and no device, platform, generator, location, date or creator
-            is ever invented.
-          </p>
-        </section>
-      </main>
+        <div className="mt-5 grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
+          <ConfidenceRing value={92} tone="primary" label="AI detection" size={150} />
 
-      <footer className="border-t border-border/70 py-6">
-        <p className="mx-auto max-w-6xl px-4 text-xs text-muted-foreground">
-          AIMD — AI Media Forensics &amp; Provenance Platform. Forensic results are indications and
-          should be corroborated with other evidence.
-        </p>
-      </footer>
+          <dl className="space-y-3">
+            <Row label="Device" value="Samsung Galaxy" tone="text-foreground" />
+            <Row label="Provenance" value="Verified" tone="text-verdict-safe" />
+            <Row label="Manipulation" value="Low risk" tone="text-verdict-safe" />
+            <Row label="Social signals" value="Possible recompression" tone="text-verdict-warn" />
+          </dl>
+        </div>
+
+        <div className="mt-6 rounded-lg border border-border/70 bg-muted/30 p-3">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Gauge className="size-3.5 text-primary" />
+            Sample visualization — run a real analysis for your own media.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value, tone }: { label: string; value: string; tone: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-2 last:border-0">
+      <dt className="text-[10px] tracking-[0.16em] text-muted-foreground uppercase">{label}</dt>
+      <dd className={`text-sm font-medium ${tone}`}>{value}</dd>
     </div>
   );
 }
