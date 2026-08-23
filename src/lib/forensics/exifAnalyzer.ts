@@ -75,7 +75,6 @@ export async function analyzeExif(file: File, kind: string): Promise<MetadataRes
       tiff: true,
       exif: true,
       gps: true,
-      ifd0: true,
       xmp: true,
       icc: true,
       iptc: true,
