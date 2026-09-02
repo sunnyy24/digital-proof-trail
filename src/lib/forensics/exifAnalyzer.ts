@@ -56,7 +56,10 @@ function deviceName(make: string | null, model: string | null): string | null {
   return model.toLowerCase().startsWith(m.toLowerCase()) ? model : `${make} ${model}`;
 }
 
-export async function analyzeExif(file: File, kind: string): Promise<MetadataResult> {
+export async function analyzeExif(
+  file: File | Uint8Array | ArrayBuffer,
+  kind: string,
+): Promise<MetadataResult> {
   if (kind !== "image") {
     return {
       available: false,
