@@ -17,6 +17,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as InvestigationsRouteImport } from './routes/investigations'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as TechnologyRouteImport } from './routes/technology'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedScanRouteImport } from './routes/_authenticated/scan'
 import { Route as AuthenticatedResultsScanIdRouteImport } from './routes/_authenticated/results.$scanId'
 
@@ -59,6 +60,11 @@ const TechnologyRoute = TechnologyRouteImport.update({
   path: '/technology',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedScanRoute = AuthenticatedScanRouteImport.update({
   id: '/scan',
   path: '/scan',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/investigations': typeof InvestigationsRoute
   '/reports': typeof ReportsRoute
   '/technology': typeof TechnologyRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/scan': typeof AuthenticatedScanRoute
   '/results/$scanId': typeof AuthenticatedResultsScanIdRoute
 }
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/investigations': typeof InvestigationsRoute
   '/reports': typeof ReportsRoute
   '/technology': typeof TechnologyRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/scan': typeof AuthenticatedScanRoute
   '/results/$scanId': typeof AuthenticatedResultsScanIdRoute
 }
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/investigations': typeof InvestigationsRoute
   '/reports': typeof ReportsRoute
   '/technology': typeof TechnologyRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/scan': typeof AuthenticatedScanRoute
   '/_authenticated/results/$scanId': typeof AuthenticatedResultsScanIdRoute
 }
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/investigations'
     | '/reports'
     | '/technology'
+    | '/dashboard'
     | '/scan'
     | '/results/$scanId'
   fileRoutesByTo: FileRoutesByTo
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/investigations'
     | '/reports'
     | '/technology'
+    | '/dashboard'
     | '/scan'
     | '/results/$scanId'
   id:
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/investigations'
     | '/reports'
     | '/technology'
+    | '/_authenticated/dashboard'
     | '/_authenticated/scan'
     | '/_authenticated/results/$scanId'
   fileRoutesById: FileRoutesById
@@ -212,6 +224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TechnologyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/scan': {
       id: '/_authenticated/scan'
       path: '/scan'
@@ -230,11 +249,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedScanRoute: typeof AuthenticatedScanRoute
   AuthenticatedResultsScanIdRoute: typeof AuthenticatedResultsScanIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedScanRoute: AuthenticatedScanRoute,
   AuthenticatedResultsScanIdRoute: AuthenticatedResultsScanIdRoute,
 }
