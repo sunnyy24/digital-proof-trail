@@ -18,6 +18,7 @@ import { Route as InvestigationsRouteImport } from './routes/investigations'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as TechnologyRouteImport } from './routes/technology'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
 import { Route as AuthenticatedScanRouteImport } from './routes/_authenticated/scan'
 import { Route as AuthenticatedResultsScanIdRouteImport } from './routes/_authenticated/results.$scanId'
 
@@ -65,6 +66,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedScanRoute = AuthenticatedScanRouteImport.update({
   id: '/scan',
   path: '/scan',
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof ReportsRoute
   '/technology': typeof TechnologyRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/history': typeof AuthenticatedHistoryRoute
   '/scan': typeof AuthenticatedScanRoute
   '/results/$scanId': typeof AuthenticatedResultsScanIdRoute
 }
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/reports': typeof ReportsRoute
   '/technology': typeof TechnologyRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/history': typeof AuthenticatedHistoryRoute
   '/scan': typeof AuthenticatedScanRoute
   '/results/$scanId': typeof AuthenticatedResultsScanIdRoute
 }
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/reports': typeof ReportsRoute
   '/technology': typeof TechnologyRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/history': typeof AuthenticatedHistoryRoute
   '/_authenticated/scan': typeof AuthenticatedScanRoute
   '/_authenticated/results/$scanId': typeof AuthenticatedResultsScanIdRoute
 }
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/technology'
     | '/dashboard'
+    | '/history'
     | '/scan'
     | '/results/$scanId'
   fileRoutesByTo: FileRoutesByTo
@@ -138,6 +148,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/technology'
     | '/dashboard'
+    | '/history'
     | '/scan'
     | '/results/$scanId'
   id:
@@ -151,6 +162,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/technology'
     | '/_authenticated/dashboard'
+    | '/_authenticated/history'
     | '/_authenticated/scan'
     | '/_authenticated/results/$scanId'
   fileRoutesById: FileRoutesById
@@ -231,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/history': {
+      id: '/_authenticated/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof AuthenticatedHistoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/scan': {
       id: '/_authenticated/scan'
       path: '/scan'
@@ -250,12 +269,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
   AuthenticatedScanRoute: typeof AuthenticatedScanRoute
   AuthenticatedResultsScanIdRoute: typeof AuthenticatedResultsScanIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
   AuthenticatedScanRoute: AuthenticatedScanRoute,
   AuthenticatedResultsScanIdRoute: AuthenticatedResultsScanIdRoute,
 }
