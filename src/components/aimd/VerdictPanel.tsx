@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { AlertTriangle, Info } from "lucide-react";
 
 const TONE: Record<string, string> = {
-  LIKELY_AI_GENERATED: "text-verdict-risk border-verdict-risk/40 bg-verdict-risk/10",
+  LIKELY_AI_GENERATED: "text-verdict-danger border-verdict-danger/40 bg-verdict-danger/10",
   LIKELY_HUMAN_CREATED: "text-verdict-safe border-verdict-safe/40 bg-verdict-safe/10",
   INCONCLUSIVE: "text-verdict-warn border-verdict-warn/40 bg-verdict-warn/10",
   ANALYSIS_UNAVAILABLE: "text-muted-foreground border-border bg-muted/30",
