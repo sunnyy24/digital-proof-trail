@@ -71,9 +71,10 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <AuthButton />
           <Button asChild size="sm" className="hidden sm:inline-flex">
-            <Link to="/analyze">
-              Analyze Media <ArrowRight className="size-4" />
+            <Link to="/scan">
+              New Scan <ArrowRight className="size-4" />
             </Link>
           </Button>
           <Button
