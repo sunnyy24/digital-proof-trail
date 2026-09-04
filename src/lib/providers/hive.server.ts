@@ -136,7 +136,7 @@ function normalizeHiveResult(raw: unknown, mediaType: MediaKind): DetectionOutco
         ? "Hive detection completed."
         : "Hive responded but returned no AI-generation classes for this media.",
     segments,
-    raw,
+    raw: raw as never,
   };
 }
 

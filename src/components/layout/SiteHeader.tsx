@@ -3,12 +3,14 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, ShieldCheck, X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 const NAV = [
   { to: "/", label: "Home" },
-  { to: "/analyze", label: "Analyze" },
-  { to: "/investigations", label: "Investigations" },
-  { to: "/reports", label: "Reports" },
+  { to: "/scan", label: "Scan" },
+  { to: "/dashboard", label: "Dashboard" },
+  { to: "/history", label: "History" },
+  { to: "/analyze", label: "Quick Analyze" },
   { to: "/technology", label: "Technology" },
   { to: "/about", label: "About" },
 ] as const;
@@ -70,9 +72,10 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <AuthButton />
           <Button asChild size="sm" className="hidden sm:inline-flex">
-            <Link to="/analyze">
-              Analyze Media <ArrowRight className="size-4" />
+            <Link to="/scan">
+              New Scan <ArrowRight className="size-4" />
             </Link>
           </Button>
           <Button
@@ -106,13 +109,54 @@ export function SiteHeader() {
               </Link>
             ))}
             <Button asChild className="mt-2 sm:hidden">
-              <Link to="/analyze">
-                Analyze Media <ArrowRight className="size-4" />
+              <Link to="/scan">
+                New Scan <ArrowRight className="size-4" />
               </Link>
             </Button>
           </nav>
         </div>
       ) : null}
     </header>
+  );
+}
+
+function AuthButton() {
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (active) setSignedIn(Boolean(data.session));
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+        setSignedIn(Boolean(session));
+      }
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  if (signedIn === null) return null;
+  if (!signedIn) {
+    return (
+      <Button asChild size="sm" variant="ghost">
+        <Link to="/auth" search={{ next: undefined }}>Sign in</Link>
+      </Button>
+    );
+  }
+  return (
+    <Button
+      size="sm"
+      variant="ghost"
+      onClick={async () => {
+        await supabase.auth.signOut();
+        window.location.href = "/";
+      }}
+    >
+      Sign out
+    </Button>
   );
 }

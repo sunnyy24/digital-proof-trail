@@ -66,25 +66,25 @@ function ResultsPage() {
     );
   }
 
-  const scan = data.scan as Record<string, string | number | null>;
+  const scan = data.scan;
   const indicators = (data.forensics?.indicators ?? []) as ForensicIndicator[];
   const categories = Array.from(new Set(indicators.map((i) => i.category)));
   const mediaUrl = scan["mediaUrl"] as string | null;
-  const kind = String(scan["media_kind"] ?? "unknown");
+  const kind = String(scan.media_kind ?? "unknown");
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-12 sm:px-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-[11px] tracking-[0.22em] text-primary uppercase">
-            Evidence {String(scan["evidence_id"])}
+            Evidence {String(scan.evidence_id)}
           </p>
           <h1 className="mt-2 font-display text-2xl font-bold break-all sm:text-3xl">
-            {String(scan["file_name"])}
+            {String(scan.file_name)}
           </h1>
           <p className="mt-2 text-xs text-muted-foreground">
-            {kind} · {formatBytes(Number(scan["file_size"] ?? 0))} · analysed{" "}
-            {scan["completed_at"] ? new Date(String(scan["completed_at"])).toLocaleString() : "—"}
+            {kind} · {formatBytes(Number(scan.file_size ?? 0))} · analysed{" "}
+            {scan.completed_at ? new Date(String(scan.completed_at)).toLocaleString() : "—"}
           </p>
         </div>
         <Button asChild variant="outline">
@@ -97,7 +97,7 @@ function ResultsPage() {
       {mediaUrl ? (
         <section className="panel overflow-hidden p-4">
           {kind === "image" ? (
-            <img src={mediaUrl} alt={String(scan["file_name"])} className="mx-auto max-h-[420px] rounded-lg" />
+            <img src={mediaUrl} alt={String(scan.file_name)} className="mx-auto max-h-[420px] rounded-lg" />
           ) : kind === "video" ? (
             <video src={mediaUrl} controls className="mx-auto max-h-[420px] w-full rounded-lg" />
           ) : (
@@ -162,8 +162,8 @@ function ResultsPage() {
 
       <ChainOfCustody
         events={data.custody}
-        evidenceId={String(scan["evidence_id"])}
-        sha256={String(scan["sha256"])}
+        evidenceId={String(scan.evidence_id)}
+        sha256={String(scan.sha256)}
       />
 
       <details className="panel p-6">

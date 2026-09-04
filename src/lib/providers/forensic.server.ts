@@ -124,7 +124,7 @@ export async function runForensics(
       strippedIndicators: metadata.strippedIndicators,
       message: metadata.message,
       raw: metadata.raw,
-    },
+    } as never,
     indicators,
     technical: {
       file: fileInfo,
@@ -132,6 +132,6 @@ export async function runForensics(
       manipulationRisk: manipulation.risk,
       manipulationConfidence: manipulation.confidence,
       socialMedia: social,
-    },
+    } as never,
   };
 }

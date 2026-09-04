@@ -20,6 +20,7 @@ import { Route as TechnologyRouteImport } from './routes/technology'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
 import { Route as AuthenticatedScanRouteImport } from './routes/_authenticated/scan'
+import { Route as AuthenticatedReportScanIdRouteImport } from './routes/_authenticated/report.$scanId'
 import { Route as AuthenticatedResultsScanIdRouteImport } from './routes/_authenticated/results.$scanId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -76,6 +77,12 @@ const AuthenticatedScanRoute = AuthenticatedScanRouteImport.update({
   path: '/scan',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReportScanIdRoute =
+  AuthenticatedReportScanIdRouteImport.update({
+    id: '/report/$scanId',
+    path: '/report/$scanId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedResultsScanIdRoute =
   AuthenticatedResultsScanIdRouteImport.update({
     id: '/results/$scanId',
@@ -94,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/scan': typeof AuthenticatedScanRoute
+  '/report/$scanId': typeof AuthenticatedReportScanIdRoute
   '/results/$scanId': typeof AuthenticatedResultsScanIdRoute
 }
 export interface FileRoutesByTo {
@@ -107,6 +115,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/scan': typeof AuthenticatedScanRoute
+  '/report/$scanId': typeof AuthenticatedReportScanIdRoute
   '/results/$scanId': typeof AuthenticatedResultsScanIdRoute
 }
 export interface FileRoutesById {
@@ -122,6 +131,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
   '/_authenticated/scan': typeof AuthenticatedScanRoute
+  '/_authenticated/report/$scanId': typeof AuthenticatedReportScanIdRoute
   '/_authenticated/results/$scanId': typeof AuthenticatedResultsScanIdRoute
 }
 export interface FileRouteTypes {
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/history'
     | '/scan'
+    | '/report/$scanId'
     | '/results/$scanId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/history'
     | '/scan'
+    | '/report/$scanId'
     | '/results/$scanId'
   id:
     | '__root__'
@@ -164,6 +176,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/history'
     | '/_authenticated/scan'
+    | '/_authenticated/report/$scanId'
     | '/_authenticated/results/$scanId'
   fileRoutesById: FileRoutesById
 }
@@ -257,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedScanRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/report/$scanId': {
+      id: '/_authenticated/report/$scanId'
+      path: '/report/$scanId'
+      fullPath: '/report/$scanId'
+      preLoaderRoute: typeof AuthenticatedReportScanIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/results/$scanId': {
       id: '/_authenticated/results/$scanId'
       path: '/results/$scanId'
@@ -271,6 +291,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
   AuthenticatedScanRoute: typeof AuthenticatedScanRoute
+  AuthenticatedReportScanIdRoute: typeof AuthenticatedReportScanIdRoute
   AuthenticatedResultsScanIdRoute: typeof AuthenticatedResultsScanIdRoute
 }
 
@@ -278,6 +299,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
   AuthenticatedScanRoute: AuthenticatedScanRoute,
+  AuthenticatedReportScanIdRoute: AuthenticatedReportScanIdRoute,
   AuthenticatedResultsScanIdRoute: AuthenticatedResultsScanIdRoute,
 }
 
