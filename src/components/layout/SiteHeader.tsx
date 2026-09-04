@@ -143,7 +143,7 @@ function AuthButton() {
   if (!signedIn) {
     return (
       <Button asChild size="sm" variant="ghost">
-        <Link to="/auth">Sign in</Link>
+        <Link to="/auth" search={{ next: undefined }}>Sign in</Link>
       </Button>
     );
   }
