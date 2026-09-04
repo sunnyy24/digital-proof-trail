@@ -55,7 +55,7 @@ function ReportPage() {
     );
   }
 
-  const scan = data.scan as Record<string, string | number | null>;
+  const scan = data.scan;
   const indicators = (data.forensics?.indicators ?? []) as ForensicIndicator[];
 
   const downloadJson = () => {
@@ -63,12 +63,12 @@ function ReportPage() {
       [
         JSON.stringify(
           {
-            evidenceId: scan["evidence_id"],
+            evidenceId: scan.evidence_id,
             file: {
-              name: scan["file_name"],
-              type: scan["file_type"],
-              size: scan["file_size"],
-              sha256: scan["sha256"],
+              name: scan.file_name,
+              type: scan.file_type,
+              size: scan.file_size,
+              sha256: scan.sha256,
             },
             verdict: data.fusion,
             reasoning: data.reasoning,
@@ -88,7 +88,7 @@ function ReportPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${scan["evidence_id"]}.json`;
+    a.download = `${scan.evidence_id}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -111,18 +111,18 @@ function ReportPage() {
             AI Media Detection &amp; Digital Forensics
           </p>
           <dl className="mt-5 grid gap-3 text-xs sm:grid-cols-2">
-            <Field label="Evidence ID" value={String(scan["evidence_id"])} />
-            <Field label="Case ID" value={String(scan["case_id"] ?? "—")} />
-            <Field label="File name" value={String(scan["file_name"])} />
-            <Field label="File size" value={formatBytes(Number(scan["file_size"] ?? 0))} />
-            <Field label="Media type" value={String(scan["media_kind"])} />
+            <Field label="Evidence ID" value={String(scan.evidence_id)} />
+            <Field label="Case ID" value={String(scan.case_id ?? "—")} />
+            <Field label="File name" value={String(scan.file_name)} />
+            <Field label="File size" value={formatBytes(Number(scan.file_size ?? 0))} />
+            <Field label="Media type" value={String(scan.media_kind)} />
             <Field
               label="Analysed"
               value={
-                scan["completed_at"] ? new Date(String(scan["completed_at"])).toISOString() : "—"
+                scan.completed_at ? new Date(String(scan.completed_at)).toISOString() : "—"
               }
             />
-            <Field label="SHA-256" value={String(scan["sha256"])} wide />
+            <Field label="SHA-256" value={String(scan.sha256)} wide />
           </dl>
         </header>
 

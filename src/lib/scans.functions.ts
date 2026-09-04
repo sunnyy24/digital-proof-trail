@@ -401,9 +401,9 @@ export const getScanResult = createServerFn({ method: "POST" })
       forensics: forensic.data
         ? {
             mediaKind: (forensic.data.media_kind ?? "unknown") as never,
-            metadata: forensic.data.metadata as Record<string, unknown> | null,
+            metadata: forensic.data.metadata as never,
             indicators: (forensic.data.indicators ?? []) as never,
-            technical: (forensic.data.technical ?? {}) as Record<string, unknown>,
+            technical: (forensic.data.technical ?? {}) as never,
           }
         : null,
       segments: (segments.data ?? []).map((s) => ({
