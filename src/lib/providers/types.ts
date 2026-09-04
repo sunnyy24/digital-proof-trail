@@ -2,6 +2,8 @@
 // Every provider returns one of these shapes so the frontend never depends on
 // a specific vendor and never has to invent values that were not returned.
 
+export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
+
 export type MediaKind = "image" | "video" | "audio" | "unknown";
 
 export type ScanVerdict =
@@ -36,7 +38,7 @@ export interface DetectionOutcome {
   sourceConfidence: number | null;
   message: string;
   segments: SegmentOutcome[];
-  raw: unknown;
+  raw: Json | null;
 }
 
 /** ProvenanceProvider — C2PA / Content Credentials, SynthID. */
@@ -65,9 +67,9 @@ export interface ForensicIndicator {
 /** ForensicProvider — metadata + structural analysis. */
 export interface ForensicOutcome {
   mediaKind: MediaKind;
-  metadata: Record<string, unknown> | null;
+  metadata: Json | null;
   indicators: ForensicIndicator[];
-  technical: Record<string, unknown>;
+  technical: Json;
 }
 
 /** Evidence fusion output. */
@@ -92,8 +94,29 @@ export interface ReasoningOutcome {
   message: string;
 }
 
+export interface ScanRow {
+  id: string;
+  evidence_id: string;
+  case_id: string | null;
+  file_name: string;
+  file_type: string;
+  media_kind: string;
+  file_size: number;
+  sha256: string;
+  storage_path: string | null;
+  status: string;
+  stage: string | null;
+  error_message: string | null;
+  verdict: string | null;
+  confidence: number | null;
+  risk_level: string | null;
+  created_at: string;
+  completed_at: string | null;
+  mediaUrl: string | null;
+}
+
 export interface ScanResultBundle {
-  scan: Record<string, unknown>;
+  scan: ScanRow;
   detections: DetectionOutcome[];
   provenance: ProvenanceOutcome[];
   forensics: ForensicOutcome | null;
